@@ -19,4 +19,10 @@ app.get("/", (req, res) => {
   res.send("🌸 Seiketsu backend is running");
 });
 
+//error handling middleware
+const errorHandler = require("./middleware/error.middleware");
+
+app.use(errorHandler);
+
+
 module.exports = app;

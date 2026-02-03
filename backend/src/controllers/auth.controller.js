@@ -2,7 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// REGISTER
+/* ================= REGISTER ================= */
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -18,26 +18,26 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({
+    const user = await User.create({
       name,
       email,
       password: hashedPassword,
     });
 
-    return res.status(201).json({
+    res.status(201).json({
       message: "User registered successfully",
       user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
+        id: user._id,
+        name: user.name,
+        email: user.email,
       },
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
-// LOGIN
+/* ================= LOGIN ================= */
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -57,12 +57,12 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    return res.json({
+    res.json({
       message: "Login successful",
       token,
       user: {
@@ -72,6 +72,6 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
