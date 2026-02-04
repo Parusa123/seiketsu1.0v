@@ -1,16 +1,13 @@
-module.exports = function validate(schema) {
+module.exports = (schema) => {
   return (req, res, next) => {
-    if (!schema) {
-      return res.status(500).json({
-        message: "Schema is undefined (validation wiring error)",
-      });
-    }
-
-    const { error } = schema.validate(req.body);
+    const { error } = schema.validate(req.body, {
+      abortEarly: false,
+    });
 
     if (error) {
       return res.status(400).json({
-        message: error.details[0].message,
+        message: "Validation failed",
+        errors: error.details.map((e) => e.message),
       });
     }
 

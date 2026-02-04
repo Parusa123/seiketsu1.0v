@@ -6,8 +6,7 @@ const validate = require("../middleware/validate.middleware");
 
 const authValidator = require("../validators/auth.validator");
 
-// 🔍 DEBUG LOG (IMPORTANT)
-console.log("AUTH VALIDATOR:", authValidator);
+
 
 router.post(
   "/register",

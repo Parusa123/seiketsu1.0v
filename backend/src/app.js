@@ -1,28 +1,20 @@
 const express = require("express");
-const cors = require("cors");
-
 const app = express();
 
-// middleware FIRST
 app.use(express.json());
-app.use(cors());
 
-// routes AFTER middleware
+// routes
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
+const dustbinRoutes = require("./routes/dustbin.routes"); // 👈 ADD THIS
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/dustbins", dustbinRoutes); // 👈 ADD THIS
 
 // test route
 app.get("/", (req, res) => {
-  res.send("🌸 Seiketsu backend is running");
+  res.send("OK");
 });
-
-//error handling middleware
-const errorHandler = require("./middleware/error.middleware");
-
-app.use(errorHandler);
-
 
 module.exports = app;
