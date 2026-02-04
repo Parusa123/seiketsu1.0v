@@ -61,3 +61,28 @@ exports.getNearbyDustbins = async (req, res) => {
   }
 };
 
+// REPORT overflowing dustbin
+exports.reportOverflow = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const dustbin = await Dustbin.findByIdAndUpdate(
+      id,
+      { status: "overflow" },
+      { new: true }
+    );
+
+    if (!dustbin) {
+      return res.status(404).json({ message: "Dustbin not found" });
+    }
+
+    res.json({
+      message: "Overflow reported successfully 🚨",
+      dustbin
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
