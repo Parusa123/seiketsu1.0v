@@ -9,7 +9,7 @@ const dustbinSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["empty", "half", "full"],
+      enum: ["empty", "half", "full", "overflowing"],
       default: "empty",
     },
 
@@ -28,7 +28,7 @@ const dustbinSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 🌍 IMPORTANT for map queries
+// 🔥 GEO INDEX (THIS IS THE MAGIC)
 dustbinSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Dustbin", dustbinSchema);
