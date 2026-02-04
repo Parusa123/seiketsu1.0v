@@ -7,10 +7,12 @@ app.use(express.json());
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const dustbinRoutes = require("./routes/dustbin.routes"); // 👈 ADD THIS
+const dustbinRequestRoutes = require("./routes/dustbinRequest.routes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/dustbins", dustbinRoutes); // 👈 ADD THIS
+app.use("/api/dustbin-requests", dustbinRequestRoutes);
 
 // test route
 app.get("/", (req, res) => {
