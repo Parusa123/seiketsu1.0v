@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const dustbinRequestSchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     location: {
       type: {
         type: String,
@@ -13,15 +18,6 @@ const dustbinRequestSchema = new mongoose.Schema(
         required: true,
       },
     },
-    message: {
-      type: String,
-      required: true,
-    },
-    reportedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
@@ -31,7 +27,6 @@ const dustbinRequestSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// 🌍 geo index
 dustbinRequestSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("DustbinRequest", dustbinRequestSchema);
