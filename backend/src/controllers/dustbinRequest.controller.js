@@ -17,7 +17,7 @@ exports.createDustbinRequest = async (req, res) => {
         coordinates: [longitude, latitude],
       },
       message,
-      reportedBy: req.user.id, // comes from JWT
+      user: req.user.id, // comes from JWT
     });
 
     res.status(201).json({

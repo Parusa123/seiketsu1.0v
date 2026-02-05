@@ -7,6 +7,7 @@ const adminMiddleware = require("../middleware/admin.middleware");
 const {
   getAllRequests,
   approveRequest,
+  rejectRequest,
 } = require("../controllers/admin.controller");
 
 // 🔐 Admin only
@@ -17,5 +18,12 @@ router.patch(
   adminMiddleware,
   approveRequest
 );
+router.patch(
+  "/requests/:id/reject",
+  authMiddleware,
+  adminMiddleware,
+  rejectRequest
+);
+
 
 module.exports = router;
