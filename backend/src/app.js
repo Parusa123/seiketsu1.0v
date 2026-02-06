@@ -10,6 +10,7 @@ const dustbinRoutes = require("./routes/dustbin.routes");
 const dustbinRequestRoutes = require("./routes/dustbinRequest.routes");
 const adminRoutes = require("./routes/admin.routes");
 const statsRoutes = require("./routes/stats.routes"); // ✅ THIS
+const notificationRoutes = require("./routes/notification.routes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -17,6 +18,7 @@ app.use("/api/dustbins", dustbinRoutes);
 app.use("/api/dustbin-requests", dustbinRequestRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/stats", statsRoutes); // ✅ THIS
+app.use("/api/notifications", notificationRoutes)
 
 app.get("/", (req, res) => {
   res.send("OK");
