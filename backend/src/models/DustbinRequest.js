@@ -2,11 +2,6 @@ const mongoose = require("mongoose");
 
 const dustbinRequestSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
     location: {
       type: {
         type: String,
@@ -14,9 +9,16 @@ const dustbinRequestSchema = new mongoose.Schema(
         default: "Point",
       },
       coordinates: {
-        type: [Number], // [lng, lat]
+        type: [Number], // [longitude, latitude]
         required: true,
       },
+    },
+
+    message: String,
+    reportedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     status: {
       type: String,
