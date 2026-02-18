@@ -6,6 +6,7 @@ import {
   Popup,
   Polyline,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -21,11 +22,17 @@ L.Icon.Default.mergeOptions({
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-/* ---------- CUSTOM ICONS ---------- */
+/* ---------- ICONS ---------- */
 
 const dustbinIcon = new L.Icon({
   iconUrl:
     "https://cdn-icons-png.flaticon.com/512/484/484662.png",
+  iconSize: [35, 35],
+});
+
+const constructionIcon = new L.Icon({
+  iconUrl:
+    "https://cdn-icons-png.flaticon.com/512/854/854878.png",
   iconSize: [35, 35],
 });
 
@@ -35,6 +42,13 @@ const userIcon = new L.Icon({
   iconSize: [35, 35],
 });
 
+const redIcon = new L.Icon({
+  iconUrl:
+    "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+  iconSize: [35, 35],
+});
+
+/* ---------- FLY TO USER ---------- */
 function FlyTo({ position }) {
   const map = useMap();
   useEffect(() => {
@@ -45,20 +59,42 @@ function FlyTo({ position }) {
   return null;
 }
 
-export default function MapView() {
+/* ---------- CLICK SELECTOR ---------- */
+function LocationSelector({ setSelectedLocation }) {
+  useMapEvents({
+    click(e) {
+      setSelectedLocation([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+  return null;
+}
+
+export default function MapView({
+  selectedLocation,
+  setSelectedLocation,
+}) {
   const [userPosition, setUserPosition] = useState(null);
   const [routeCoords, setRouteCoords] = useState([]);
   const [distance, setDistance] = useState(null);
 
   const centerPosition = [26.1445, 91.7362];
 
+  /* ---------- DUSTBINS WITH STATUS ---------- */
   const dustbins = [
-    { id: 1, position: [26.1500, 91.7400], name: "Zoo Road" },
-    { id: 2, position: [26.1480, 91.7300], name: "GS Road" },
-    { id: 3, position: [26.1420, 91.7250], name: "Paltan Bazaar" },
-    { id: 4, position: [26.1600, 91.7500], name: "Six Mile" },
-  ];
+  { id: 1, position: [26.1500, 91.7400], name: "Zoo Road", status: "empty" },
+  { id: 2, position: [26.1480, 91.7300], name: "GS Road", status: "empty" },
+  { id: 3, position: [26.1420, 91.7250], name: "Paltan Bazaar", status: "in-construction" },
+  { id: 4, position: [26.1600, 91.7500], name: "Six Mile", status: "empty" },
+  { id: 5, position: [26.1200, 91.8000], name: "Khanapara", status: "empty" },
+  { id: 6, position: [26.2000, 91.7000], name: "North Guwahati", status: "empty" },
+  { id: 7, position: [26.1800, 91.8200], name: "Panikhaiti", status: "empty" },
+  { id: 8, position: [26.1000, 91.6800], name: "Azara", status: "empty" },
+  { id: 9, position: [26.2500, 91.6500], name: "Amingaon", status: "empty" },
+  { id: 10, position: [26.0500, 91.9000], name: "Sonapur", status: "empty" },
+];
 
+
+  /* ---------- DISTANCE CALC ---------- */
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -74,6 +110,7 @@ export default function MapView() {
     return R * c;
   };
 
+  /* ---------- ROUTE FETCH ---------- */
   const fetchRoute = async (userCoords, binCoords) => {
     try {
       const url = `https://router.project-osrm.org/route/v1/driving/${userCoords[1]},${userCoords[0]};${binCoords[1]},${binCoords[0]}?overview=full&geometries=geojson`;
@@ -81,7 +118,7 @@ export default function MapView() {
       const res = await fetch(url);
       const data = await res.json();
 
-      if (data.routes.length > 0) {
+      if (data.routes && data.routes.length > 0) {
         const coords = data.routes[0].geometry.coordinates.map(
           (coord) => [coord[1], coord[0]]
         );
@@ -94,6 +131,7 @@ export default function MapView() {
     }
   };
 
+  /* ---------- NAVIGATE ---------- */
   const showNearestDustbin = () => {
     navigator.geolocation.getCurrentPosition((position) => {
       const userCoords = [
@@ -106,33 +144,43 @@ export default function MapView() {
       let minDistance = Infinity;
       let closest = null;
 
-      dustbins.forEach((bin) => {
-        const dist = getDistance(
-          userCoords[0],
-          userCoords[1],
-          bin.position[0],
-          bin.position[1]
-        );
+      dustbins
+        .filter((bin) => bin.status !== "in-construction") // IGNORE construction
+        .forEach((bin) => {
+          const dist = getDistance(
+            userCoords[0],
+            userCoords[1],
+            bin.position[0],
+            bin.position[1]
+          );
 
-        if (dist < minDistance) {
-          minDistance = dist;
-          closest = bin;
-        }
-      });
+          if (dist < minDistance) {
+            minDistance = dist;
+            closest = bin;
+          }
+        });
 
-      fetchRoute(userCoords, closest.position);
+      if (closest) {
+        fetchRoute(userCoords, closest.position);
+      }
     });
   };
 
-  /* ---------- NEW: CANCEL NAVIGATION ---------- */
   const cancelNavigation = () => {
     setRouteCoords([]);
     setDistance(null);
   };
 
+  const cancelSelectedLocation = () => {
+    if (setSelectedLocation) {
+      setSelectedLocation(null);
+    }
+  };
+
   return (
     <div style={{ height: "80vh", width: "100%", position: "relative" }}>
-      {/* NAVIGATE BUTTON */}
+
+      {/* NAVIGATION BUTTON */}
       <button
         onClick={showNearestDustbin}
         style={{
@@ -152,7 +200,7 @@ export default function MapView() {
         🗑 Navigate to Nearest Dustbin
       </button>
 
-      {/* NEW CANCEL BUTTON (only show when route exists) */}
+      {/* CANCEL NAVIGATION */}
       {routeCoords.length > 0 && (
         <button
           onClick={cancelNavigation}
@@ -174,11 +222,34 @@ export default function MapView() {
         </button>
       )}
 
+      {/* CANCEL SELECTED LOCATION */}
+      {selectedLocation && (
+        <button
+          onClick={cancelSelectedLocation}
+          style={{
+            position: "absolute",
+            top: 110,
+            right: 10,
+            zIndex: 1000,
+            padding: "10px 14px",
+            backgroundColor: "#f97316",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          ❌ Cancel Selected Location
+        </button>
+      )}
+
+      {/* DISTANCE BOX */}
       {distance && (
         <div
           style={{
             position: "absolute",
-            top: 110,
+            top: 160,
             right: 10,
             zIndex: 1000,
             background: "white",
@@ -201,12 +272,30 @@ export default function MapView() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
+        {setSelectedLocation && (
+          <LocationSelector setSelectedLocation={setSelectedLocation} />
+        )}
+
+        {/* DUSTBINS */}
         {dustbins.map((bin) => (
-          <Marker key={bin.id} position={bin.position} icon={dustbinIcon}>
-            <Popup>{bin.name}</Popup>
+          <Marker
+            key={bin.id}
+            position={bin.position}
+            icon={
+              bin.status === "in-construction"
+                ? constructionIcon
+                : dustbinIcon
+            }
+          >
+            <Popup>
+              {bin.name}
+              <br />
+              Status: {bin.status}
+            </Popup>
           </Marker>
         ))}
 
+        {/* USER */}
         {userPosition && (
           <>
             <Marker position={userPosition} icon={userIcon}>
@@ -216,6 +305,14 @@ export default function MapView() {
           </>
         )}
 
+        {/* SELECTED LOCATION */}
+        {selectedLocation && (
+          <Marker position={selectedLocation} icon={redIcon}>
+            <Popup>Selected Location</Popup>
+          </Marker>
+        )}
+
+        {/* ROUTE */}
         {routeCoords.length > 0 && (
           <Polyline positions={routeCoords} color="blue" weight={6} />
         )}

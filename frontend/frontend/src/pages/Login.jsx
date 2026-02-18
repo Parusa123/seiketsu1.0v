@@ -13,8 +13,14 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate("/dashboard");       // ✅ NOW THIS WORKS
+      const data = await login(email, password);
+
+if (data.user.role === "admin") {
+  navigate("/admin");
+} else {
+  navigate("/dashboard");
+}
+      // ✅ NOW THIS WORKS
     } catch {
       setError("Invalid credentials ❌");
     }

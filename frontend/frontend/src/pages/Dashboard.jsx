@@ -3,28 +3,55 @@ import MapView from "./MapView";
 
 export default function Dashboard() {
   const [showForm, setShowForm] = useState(false);
-  const [location, setLocation] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [description, setDescription] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Later we connect this to backend API
-    console.log("New Dustbin Request:", { location, description });
+    if (!selectedLocation) {
+      alert("Please click on map to select location first.");
+      return;
+    }
 
-    setSubmitted(true);
-    setShowForm(false);
-    setLocation("");
-    setDescription("");
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/dustbin-requests",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            latitude: selectedLocation[0],
+            longitude: selectedLocation[1],
+            message: description,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Something went wrong");
+        return;
+      }
+
+      setSubmitted(true);
+      setShowForm(false);
+      setDescription("");
+      setSelectedLocation(null);
+    } catch (err) {
+      alert("Request failed");
+    }
   };
 
   return (
     <div style={{ padding: 40 }}>
       <h1>Dashboard ✅</h1>
-      <p>You are logged in.</p>
 
-      {/* Request Button */}
       <button
         onClick={() => setShowForm(true)}
         style={{
@@ -40,19 +67,19 @@ export default function Dashboard() {
         🗑 Request New Dustbin
       </button>
 
-      {/* Success Message */}
       {submitted && (
         <p style={{ color: "green", marginTop: 15 }}>
           ✅ Dustbin request submitted successfully!
         </p>
       )}
 
-      {/* MAP SECTION */}
       <div style={{ height: "75vh", marginTop: 30 }}>
-        <MapView />
+        <MapView
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
+        />
       </div>
 
-      {/* Modal Form */}
       {showForm && (
         <div
           style={{
@@ -82,14 +109,12 @@ export default function Dashboard() {
           >
             <h3>Request Dustbin</h3>
 
-            <input
-              type="text"
-              placeholder="Location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              required
-              style={{ padding: 8 }}
-            />
+            {selectedLocation && (
+              <p>
+                📍 {selectedLocation[0].toFixed(5)},{" "}
+                {selectedLocation[1].toFixed(5)}
+              </p>
+            )}
 
             <textarea
               placeholder="Description"
@@ -107,7 +132,6 @@ export default function Dashboard() {
                 border: "none",
                 padding: "8px",
                 borderRadius: "6px",
-                cursor: "pointer",
               }}
             >
               Submit
@@ -122,7 +146,6 @@ export default function Dashboard() {
                 border: "none",
                 padding: "8px",
                 borderRadius: "6px",
-                cursor: "pointer",
               }}
             >
               Cancel

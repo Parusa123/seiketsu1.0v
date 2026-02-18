@@ -11,3 +11,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.green-bin img { filter: hue-rotate(90deg); }
+.orange-bin img { filter: hue-rotate(30deg); }
+.blue-bin img { filter: hue-rotate(200deg); }
+.red-bin img { filter: hue-rotate(0deg) saturate(3); }

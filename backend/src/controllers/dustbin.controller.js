@@ -1,6 +1,20 @@
 const Dustbin = require("../models/Dustbin");
 
-// CREATE dustbin (protected)
+// =============================
+// GET ALL DUSTBINS (NEW)
+// =============================
+exports.getAllDustbins = async (req, res) => {
+  try {
+    const dustbins = await Dustbin.find();
+    res.json(dustbins);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// =============================
+// CREATE DUSTBIN
+// =============================
 exports.createDustbin = async (req, res, next) => {
   try {
     const { name, latitude, longitude, status } = req.body;
@@ -16,7 +30,7 @@ exports.createDustbin = async (req, res, next) => {
       status,
       location: {
         type: "Point",
-        coordinates: [longitude, latitude], // IMPORTANT ORDER
+        coordinates: [longitude, latitude],
       },
     });
 
@@ -25,11 +39,13 @@ exports.createDustbin = async (req, res, next) => {
       dustbin,
     });
   } catch (err) {
-    next(err); // 👈 important for error middleware
+    next(err);
   }
 };
 
-//geo querry
+// =============================
+// GET NEARBY DUSTBINS
+// =============================
 exports.getNearbyDustbins = async (req, res) => {
   try {
     const { lat, lng } = req.query;
@@ -47,7 +63,7 @@ exports.getNearbyDustbins = async (req, res) => {
             type: "Point",
             coordinates: [parseFloat(lng), parseFloat(lat)],
           },
-          $maxDistance: 2000, // meters = 2km
+          $maxDistance: 2000,
         },
       },
     });
@@ -61,14 +77,16 @@ exports.getNearbyDustbins = async (req, res) => {
   }
 };
 
-// REPORT overflowing dustbin
+// =============================
+// REPORT OVERFLOW
+// =============================
 exports.reportOverflow = async (req, res) => {
   try {
     const { id } = req.params;
 
     const dustbin = await Dustbin.findByIdAndUpdate(
       id,
-      { status: "overflow" },
+      { status: "overflowing" }, // FIXED ENUM
       { new: true }
     );
 
@@ -78,11 +96,9 @@ exports.reportOverflow = async (req, res) => {
 
     res.json({
       message: "Overflow reported successfully 🚨",
-      dustbin
+      dustbin,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
-
