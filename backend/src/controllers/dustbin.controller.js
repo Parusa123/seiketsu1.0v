@@ -3,6 +3,7 @@ const Dustbin = require("../models/Dustbin");
 // =============================
 // GET ALL DUSTBINS (NEW)
 // =============================
+// GET ALL DUSTBINS (PUBLIC)
 exports.getAllDustbins = async (req, res) => {
   try {
     const dustbins = await Dustbin.find();
@@ -11,6 +12,7 @@ exports.getAllDustbins = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // =============================
 // CREATE DUSTBIN

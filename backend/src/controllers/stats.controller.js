@@ -1,4 +1,5 @@
 const DustbinRequest = require("../models/DustbinRequest");
+const Dustbin = require("../models/Dustbin");
 
 /* =====================================
    🏆 TOP CONTRIBUTORS
@@ -6,14 +7,15 @@ const DustbinRequest = require("../models/DustbinRequest");
 exports.getTopContributors = async (req, res) => {
   try {
     const stats = await DustbinRequest.aggregate([
+      { $match: { status: "approved" } },
+
       {
         $group: {
-           _id: "$user",
-          count: { $sum: 1 },
+          _id: "$reportedBy",
+          approvedCount: { $sum: 1 },
         },
       },
-      { $sort: { count: -1 } },
-      { $limit: 10 },
+
       {
         $lookup: {
           from: "users",
@@ -22,16 +24,25 @@ exports.getTopContributors = async (req, res) => {
           as: "user",
         },
       },
+
       { $unwind: "$user" },
+
+      // 🚀 EXCLUDE ADMINS HERE
+      { $match: { "user.role": { $ne: "admin" } } },
+
       {
         $project: {
           _id: 0,
           userId: "$user._id",
           name: "$user.name",
           email: "$user.email",
-          count: 1,
+          approvedRequests: "$approvedCount",
+          score: { $multiply: ["$approvedCount", 5] },
         },
       },
+
+      { $sort: { score: -1 } },
+      { $limit: 10 },
     ]);
 
     res.json(stats);

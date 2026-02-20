@@ -1,11 +1,12 @@
 import { useState } from "react";
 import MapView from "./MapView";
-
+import { useNavigate } from "react-router-dom";
 export default function Dashboard() {
   const [showForm, setShowForm] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [description, setDescription] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,6 +67,21 @@ export default function Dashboard() {
       >
         🗑 Request New Dustbin
       </button>
+      <button
+  onClick={() => navigate("/leaderboard")}
+  style={{
+    marginLeft: "10px",
+    padding: "10px 14px",
+    backgroundColor: "#f59e0b",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  }}
+>
+  🏆 Top Contributors
+</button>
 
       {submitted && (
         <p style={{ color: "green", marginTop: 15 }}>
