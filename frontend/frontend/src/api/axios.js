@@ -3,3 +3,5 @@ import axios from "axios";
 const API = axios.create({
   baseURL: 'https://seiketsu-backend.onrender.com'
 });
+
+export default API;
