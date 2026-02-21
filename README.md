@@ -1,174 +1,200 @@
-# 🧹 Seiketsu
-## Smart Dustbin Locator & Reporting System
+# 🗑️ Seiketsu — Smart Dustbin Locator & Overflow Report System
 
-<p align="center">
-  <i>Inspired by the Japanese principle of Seiketsu (清潔) — cleanliness, order, and consistency</i>
-</p>
+> *Seiketsu (清潔) — Japanese for "cleanliness"*
 
----
-
-## 🌱 Main Goal
-
-**Seiketsu** is a lightweight full-stack web application focused on improving public cleanliness by solving a practical usability problem.
-
-Many people already want to dispose of waste properly, but often:
-- public dustbins are hard to locate  
-- bins are overflowing or damaged  
-- there is no simple way to report the issue  
-
-Seiketsu does not try to change behavior.  
-Instead, it **reduces friction** by making the correct action easier and faster.
-
-This project is intentionally designed as a **small, realistic, desk-scale system**, suitable for solo development, learning, and open-source contribution.
+Seiketsu is a full-stack web application that helps people locate nearby public dustbins and report overflowing or damaged ones. It doesn't try to change human behavior — it simply removes the friction for people who already want to act responsibly.
 
 ---
 
-## 🎯 Project Goals
+## 🚩 Problem Statement
 
-- 📍 Help users locate nearby public dustbins  
-- 🗑️ Enable reporting of overflowing / missing / damaged bins  
-- 📸 Capture image + location as proof  
-- 🧩 Keep the system simple, fast, and practical  
+Many cleanliness initiatives fail because they focus on changing habits. Seiketsu takes a different approach: if someone wants to dispose of waste properly but can't find a bin, or the nearest one is already overflowing, that's an infrastructure problem — not a behavior problem. This app solves that.
 
 ---
 
-## 🔲 High-Level System Block Diagram
+## ✨ Features (MVP)
 
-```text
-+-------------+        +-------------+        +--------------+
-|   User      | -----> |  Frontend   | -----> |   Backend    |
-| (Browser)   |        | (Web App)   |        | (Express.js) |
-+-------------+        +-------------+        +--------------+
-                                               |
-                                               v
-                                        +--------------+
-                                        |   MongoDB    |
-                                        | (Reports DB) |
+- 📍 **Interactive Map** — View nearby public dustbins at a glance
+- 🛰️ **Auto Location Detection** — GPS-based detection on app open
+- 🚨 **Overflow Reporting** — Report full or damaged bins with one tap
+- 📸 **Photo Upload** — Attach a photo with automatic timestamp
+- 🛠️ **Admin Dashboard** *(optional)* — View and manage submitted reports
 
+---
 
+## 🔄 User Flow
 
-Application Workflow:---------------------------
+1. User opens the web app
+2. Location is detected automatically via GPS
+3. Nearest dustbins are shown on the map
+4. User disposes of waste or taps "Report" on a full/damaged bin
+5. Report is stored for municipal action or data analysis
 
+---
 
-+-------------+
-|   User      |
-+-------------+
-        |
-        v
-+--------------------+
-| Open Web App       |
-+--------------------+
-        |
-        v
-+--------------------+
-| Get User Location  |
-| (Geolocation API)  |
-+--------------------+
-        |
-        v
-+--------------------+
-| Show Nearby Bins   |
-| on Map             |
-+--------------------+
-        |
-        v
-+--------------------+
-| Report Bin Issue   |
-| (Photo + Type)     |
-+--------------------+
-        |
-        v
-+--------------------+
-| Backend API        |
-| (POST /reports)   |
-+--------------------+
-        |
-        v
-+--------------------+
-| MongoDB Storage    |
-+--------------------+
+## 🛠️ Tech Stack
 
+| Layer | Technology |
+|---|---|
+| Frontend | HTML, CSS, JavaScript / React |
+| Backend | Node.js + Express |
+| Database | MongoDB / Firebase |
+| Maps | Google Maps API / OpenStreetMap (Leaflet.js) |
+| Image Storage | Cloudinary / Firebase Storage |
 
+---
 
-🛠️ Technology Stack
-Frontend
+## 📁 Project Structure
 
-HTML, CSS, JavaScript
+```
+Seiketsu/
+├── backend/
+│   └── src/
+│       ├── config/
+│       │   └── db.js
+│       ├── controllers/
+│       │   ├── auth.controller.js
+│       │   ├── dustbin.controller.js
+│       │   ├── dustbinRequest.controller.js
+│       │   ├── notification.controller.js
+│       │   ├── stats.controller.js
+│       │   └── user.controller.js
+│       ├── middleware/
+│       │   ├── admin.middleware.js
+│       │   ├── auth.middleware.js
+│       │   ├── error.middleware.js
+│       │   └── validate.middleware.js
+│       ├── models/
+│       │   ├── Dustbin.js
+│       │   ├── DustbinRequest.js
+│       │   ├── Notification.js
+│       │   └── User.js
+│       ├── routes/
+│       │   ├── admin.routes.js
+│       │   ├── auth.routes.js
+│       │   ├── dustbin.routes.js
+│       │   ├── dustbinRequest.routes.js
+│       │   ├── notification.routes.js
+│       │   ├── stats.routes.js
+│       │   └── user.routes.js
+│       └── utils/
+│           └── validators/
+│               └── auth.validator.js
+│   ├── app.js
+│   ├── server.js
+│   ├── .env
+│   └── package.json
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── api/
+│       │   └── axios.js
+│       ├── auth/
+│       │   └── AuthContext.js
+│       ├── pages/
+│       │   ├── AdminDashboard.jsx / .css
+│       │   ├── Dashboard.jsx / .css
+│       │   ├── Leaderboard.jsx / .css
+│       │   ├── Login.jsx / .css
+│       │   ├── MapView.jsx
+│       │   └── Register.jsx
+│       ├── App.js / App.css
+│       └── index.js / index.css
+│   └── package.json
+├── Documents/
+│   └── Smart_Dustbin_Locator_Project.pdf
+└── README.md
+```
 
-Map API (Google Maps / OpenStreetMap)
+---
 
-Backend
+## 🚀 Getting Started
 
-Node.js
+### Prerequisites
 
-Express.js
+- Node.js v18+
+- MongoDB Atlas account (or local MongoDB) / Firebase project
+- Google Maps API key or OpenStreetMap (free)
+- Cloudinary account (free tier available) / Firebase Storage
 
-Database
+### Installation
 
-MongoDB (Atlas)
+```bash
+# Clone the repository
+git clone https://github.com/your-username/seiketsu.git
+cd seiketsu
 
-Other Tools
+# Install dependencies
+npm install
 
-REST APIs
+# Set up environment variables
+cp .env.example .env
+# Fill in your API keys and DB URI in .env
 
-Cloud image hosting (Cloudinary / Firebase Storage)
+# Start the development server
+npm run dev
+```
 
+### Environment Variables
 
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+GOOGLE_MAPS_API_KEY=your_google_maps_key
+CLOUDINARY_URL=your_cloudinary_url
+```
 
-🧭 Development Roadmap
-Phase 1 — Planning
+---
 
-Define MVP scope
+## 🌐 API Endpoints
 
-Decide report data model
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login and get token |
+| GET | `/api/users` | Get user info |
+| GET | `/api/dustbins` | Get all dustbin locations |
+| POST | `/api/dustbins` | Add a new dustbin (admin) |
+| GET | `/api/dustbin-requests` | Get all overflow/damage reports |
+| POST | `/api/dustbin-requests` | Submit a new report |
+| GET | `/api/admin` | Admin overview |
+| GET | `/api/stats` | Usage and report statistics |
+| GET | `/api/notifications` | Get user notifications |
 
-Choose map provider
+---
 
+## 🗺️ Roadmap
 
-Phase 2 — Frontend
+- [x] Core map view with dustbin markers
+- [x] GPS-based location detection
+- [x] Report submission with photo upload
+- [ ] Admin dashboard with report management
+- [ ] Municipal authority email alerts
+- [ ] Upvote system for reports (crowd-verified)
+- [ ] PWA support for offline access
 
-Build minimal UI
+---
 
-Integrate map
+## 💡 Why Seiketsu is Realistic
 
-Display static dustbin markers
+- Can be built solo by a single student
+- Requires no funding or external volunteers
+- Completable within **1–2 weeks**
+- Suitable for portfolios, hackathons, and internship applications
+- Uses free-tier services throughout the stack
 
-Enable geolocation
+---
 
+## 🤝 Contributing
 
-Phase 3 — Backend
+Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change.
 
-Setup Express server
+---
 
-Connect MongoDB
+## 📄 License
 
-Create report schema
+[MIT](LICENSE)
 
-Build REST endpoints
+---
 
-
-Phase 4 — Integration
-
-Connect frontend to backend
-
-Submit reports from UI
-
-Fetch reports and show markers
-
-
-Phase 5 — Polish
-
-Improve mobile responsiveness
-
-Add loading & success states
-
-UI and UX cleanup
-
-
-Phase 6 — Deployment
-
-Frontend → Netlify / GitHub Pages
-
-Backend → Render / Railway
-
-Database → MongoDB Atla
+<p align="center">Built with 💚 for cleaner communities</p>
