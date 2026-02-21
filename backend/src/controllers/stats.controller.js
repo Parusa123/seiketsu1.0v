@@ -140,3 +140,47 @@ exports.getAreaHeatMap = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+/* =====================================
+   👤 MY STATS (Dashboard Cards)
+===================================== */
+exports.getMyStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Count approved, pending requests for this user
+    const [approved, pending] = await Promise.all([
+      DustbinRequest.countDocuments({ reportedBy: userId, status: "approved" }),
+      DustbinRequest.countDocuments({ reportedBy: userId, status: "pending" }),
+    ]);
+
+    // Count overflow reports by this user (dustbins currently overflowing)
+    const overflowReports = await Dustbin.countDocuments({ status: "overflowing" });
+
+    // Calculate rank: how many non-admin users have MORE approved requests than this user
+    const allUserStats = await DustbinRequest.aggregate([
+      { $match: { status: "approved" } },
+      { $group: { _id: "$reportedBy", count: { $sum: 1 } } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      { $match: { "user.role": { $ne: "admin" } } },
+      { $sort: { count: -1 } },
+    ]);
+
+    const rankIndex = allUserStats.findIndex(
+      (s) => s._id.toString() === userId.toString()
+    );
+    const rank = rankIndex === -1 ? "—" : `#${rankIndex + 1}`;
+
+    res.json({ approved, pending, overflowReports, rank });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

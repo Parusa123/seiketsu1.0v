@@ -1,23 +1,29 @@
 const express = require("express");
 const router = express.Router();
 
-const { register, login } = require("../controllers/auth.controller");
-const validate = require("../middleware/validate.middleware");
+const authMiddleware = require("../middleware/auth.middleware");
+const adminMiddleware = require("../middleware/admin.middleware");
 
-const authValidator = require("../validators/auth.validator");
+const {
+  getAllRequests,
+  approveRequest,
+  rejectRequest,
+} = require("../controllers/admin.controller");
 
-
-
-router.post(
-  "/register",
-  validate(authValidator.registerSchema),
-  register
+// 🔐 Admin only
+router.get("/requests", authMiddleware, adminMiddleware, getAllRequests);
+router.patch(
+  "/requests/:id/approve",
+  authMiddleware,
+  adminMiddleware,
+  approveRequest
+);
+router.patch(
+  "/requests/:id/reject",
+  authMiddleware,
+  adminMiddleware,
+  rejectRequest
 );
 
-router.post(
-  "/login",
-  validate(authValidator.loginSchema),
-  login
-);
 
 module.exports = router;

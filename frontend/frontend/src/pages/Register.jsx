@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
-import "./Login.css"; // ✅ reuse same CSS
+import "./Login.css";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -9,21 +9,22 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
-      await axios.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
+      await axios.post("/auth/register", { name, email, password });
 
-      alert("Registration successful ✅");
-      navigate("/");
+      setSuccess(true);
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => navigate("/"), 2000);
     } catch (err) {
-      alert("Registration failed ❌");
+      setError("Registration failed. Please try again.");
     }
   };
 
@@ -32,38 +33,51 @@ export default function Register() {
       <div className="login-card">
         <h2>Register</h2>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+        {success ? (
+          <div className="register-success">
+            <span className="register-success-icon">✅</span>
+            <p>Registration successful!</p>
+            <p className="register-redirect-msg">Redirecting to login...</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <input
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
 
-          <input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+            <input
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
 
-          <button type="submit">Register</button>
+            {error && <p className="register-error">{error}</p>}
 
-          <p>
-            Already have an account?{" "}
-            <span
-              style={{ color: "blue", cursor: "pointer" }}
-              onClick={() => navigate("/")}
-            >
-              Login
-            </span>
-          </p>
-        </form>
+            <button type="submit">Register</button>
+
+            <p>
+              Already have an account?{" "}
+              <span
+                style={{ color: "blue", cursor: "pointer" }}
+                onClick={() => navigate("/")}
+              >
+                Login
+              </span>
+            </p>
+          </form>
+        )}
       </div>
     </div>
   );

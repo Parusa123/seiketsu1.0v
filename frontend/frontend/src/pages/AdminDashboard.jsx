@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
   const [requests, setRequests] = useState([]);
@@ -6,14 +7,11 @@ export default function AdminDashboard() {
 
   const token = localStorage.getItem("token");
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:3000/api/admin/requests", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       const data = await res.json();
       setRequests(data);
       setLoading(false);
@@ -21,97 +19,113 @@ export default function AdminDashboard() {
       console.log(err);
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+  }, [fetchRequests]);
 
   const handleApprove = async (id) => {
-    await fetch(
-      `http://localhost:3000/api/admin/requests/${id}/approve`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
+    await fetch(`http://localhost:3000/api/admin/requests/${id}/approve`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     fetchRequests();
   };
 
   const handleReject = async (id) => {
-    await fetch(
-      `http://localhost:3000/api/admin/requests/${id}/reject`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
+    await fetch(`http://localhost:3000/api/admin/requests/${id}/reject`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     fetchRequests();
   };
 
-  if (loading) return <h2 style={{ padding: 40 }}>Loading...</h2>;
+  if (loading) return <div className="admin-loading">Loading requests...</div>;
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>🛠 Admin Dashboard</h1>
+    <div className="admin-container">
+
+      {/* HEADER */}
+      <div className="admin-header">
+        <div className="admin-header-left">
+          <h1>🛠️ Admin Dashboard</h1>
+          <p>Review and manage incoming dustbin requests</p>
+        </div>
+        <div className="admin-badge">Admin Panel</div>
+      </div>
+
+      {/* SUMMARY BAR */}
+      <div className="admin-summary">
+        <div className="admin-summary-card">
+          <span className="admin-summary-icon">📋</span>
+          <div>
+            <div className="admin-summary-val">{requests.length}</div>
+            <div className="admin-summary-label">Pending Requests</div>
+          </div>
+        </div>
+        <div className="admin-summary-card">
+          <span className="admin-summary-icon">⏳</span>
+          <div>
+            <div className="admin-summary-val">
+              {requests.filter((r) => r.status === "pending").length}
+            </div>
+            <div className="admin-summary-label">Awaiting Review</div>
+          </div>
+        </div>
+      </div>
+
+      {/* REQUEST LIST */}
+      <div className="admin-section-title">Pending Requests</div>
 
       {requests.length === 0 ? (
-        <p>No pending requests.</p>
+        <div className="admin-empty">
+          <div className="admin-empty-icon">🎉</div>
+          <h3>All caught up!</h3>
+          <p>No pending dustbin requests at the moment.</p>
+        </div>
       ) : (
-        requests.map((req) => (
-          <div
-            key={req._id}
-            style={{
-              border: "1px solid #ddd",
-              padding: 20,
-              marginBottom: 20,
-              borderRadius: 10,
-            }}
-          >
-            <p><strong>Message:</strong> {req.message}</p>
-
-            <p>
-              <strong>Location:</strong>{" "}
-              {req.location.coordinates[1].toFixed(4)},{" "}
-              {req.location.coordinates[0].toFixed(4)}
-            </p>
-
-            <button
-              onClick={() => handleApprove(req._id)}
-              style={{
-                backgroundColor: "#10b981",
-                color: "white",
-                border: "none",
-                padding: "8px 12px",
-                borderRadius: "6px",
-                marginRight: 10,
-                cursor: "pointer",
-              }}
+        <div className="request-list">
+          {requests.map((req, index) => (
+            <div
+              key={req._id}
+              className="request-card"
+              style={{ animationDelay: `${index * 60}ms` }}
             >
-              ✅ Approve
-            </button>
+              <div className="request-card-top">
+                <div className="request-meta">
+                  <div className="request-message">
+                    💬 {req.message || "No description provided"}
+                  </div>
+                  <div className="request-location">
+                    📍 {req.location.coordinates[1].toFixed(5)}, {req.location.coordinates[0].toFixed(5)}
+                  </div>
+                  {req.reportedBy?.name && (
+                    <div className="request-user">
+                      Submitted by <span>{req.reportedBy.name}</span>
+                    </div>
+                  )}
+                </div>
+                <span className="request-status-badge status-pending">Pending</span>
+              </div>
 
-            <button
-              onClick={() => handleReject(req._id)}
-              style={{
-                backgroundColor: "#ef4444",
-                color: "white",
-                border: "none",
-                padding: "8px 12px",
-                borderRadius: "6px",
-                cursor: "pointer",
-              }}
-            >
-              ❌ Reject
-            </button>
-          </div>
-        ))
+              <div className="request-actions">
+                <button
+                  className="approve-btn"
+                  onClick={() => handleApprove(req._id)}
+                >
+                  ✅ Approve
+                </button>
+                <button
+                  className="reject-btn"
+                  onClick={() => handleReject(req._id)}
+                >
+                  ✕ Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
