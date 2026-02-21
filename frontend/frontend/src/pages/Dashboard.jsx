@@ -24,7 +24,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/stats/my-stats", {
+        const res = await fetch("https://seiketsu-backend.onrender.com/api/stats/my-stats", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -66,7 +66,7 @@ export default function Dashboard() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/dustbin-requests",
+        "https://seiketsu-backend.onrender.com/api/dustbin-requests",
         {
           method: "POST",
           headers: {
