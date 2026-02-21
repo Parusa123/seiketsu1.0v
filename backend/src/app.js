@@ -6,12 +6,10 @@ app.use(express.json());  // 🔥 ADD THIS HERE
 
 
 /* ===== CORS (THIS IS THE FIX) ===== */
-app.use(
-  cors({
-    origin: "http://localhost:3001",
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: ['https://seiketsuu11.vercel.app', 'http://localhost:3001'],
+  credentials: true
+}));
 
 /* ===== BODY PARSER ===== */
 app.use(express.json());
