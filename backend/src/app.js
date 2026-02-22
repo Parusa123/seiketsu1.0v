@@ -5,11 +5,8 @@ const app = express();
 app.use(express.json());  // 🔥 ADD THIS HERE
 
 
-/* ===== CORS (THIS IS THE FIX) ===== */
-app.use(cors({
-  origin: ['https://seiketsuu11.vercel.app', 'http://localhost:3001'],
-  credentials: true
-}));
+/* ===== CORS ===== */
+app.use(cors());
 
 /* ===== BODY PARSER ===== */
 app.use(express.json());
