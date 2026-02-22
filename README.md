@@ -4,6 +4,8 @@
 
 Seiketsu is a full-stack web application that helps people locate nearby public dustbins and report overflowing or damaged ones. It doesn't try to change human behavior — it simply removes the friction for people who already want to act responsibly.
 
+🌐 **Live App:** [seiketsuu11.vercel.app](https://seiketsuu11.vercel.app)
+
 ---
 
 ## 🚩 Problem Statement
@@ -12,13 +14,15 @@ Many cleanliness initiatives fail because they focus on changing habits. Seikets
 
 ---
 
-## ✨ Features (MVP)
+## ✨ Features
 
-- 📍 **Interactive Map** — View nearby public dustbins at a glance
+- 📍 **Interactive Map** — View nearby public dustbins at a glance (OpenStreetMap + Leaflet.js)
 - 🛰️ **Auto Location Detection** — GPS-based detection on app open
 - 🚨 **Overflow Reporting** — Report full or damaged bins with one tap
-- 📸 **Photo Upload** — Attach a photo with automatic timestamp
-- 🛠️ **Admin Dashboard** *(optional)* — View and manage submitted reports
+- 🛠️ **Admin Dashboard** — View, approve, and manage submitted dustbin requests
+- 🏆 **Leaderboard** — Top contributors ranked by activity
+- 🔔 **Notifications** — Users receive updates on their submitted reports
+- 🔐 **Auth System** — JWT-based register/login with role-based access (user/admin)
 
 ---
 
@@ -28,7 +32,8 @@ Many cleanliness initiatives fail because they focus on changing habits. Seikets
 2. Location is detected automatically via GPS
 3. Nearest dustbins are shown on the map
 4. User disposes of waste or taps "Report" on a full/damaged bin
-5. Report is stored for municipal action or data analysis
+5. Report is stored and sent to admin for review
+6. Admin approves or rejects the request via the Admin Dashboard
 
 ---
 
@@ -36,11 +41,13 @@ Many cleanliness initiatives fail because they focus on changing habits. Seikets
 
 | Layer | Technology |
 |---|---|
-| Frontend | HTML, CSS, JavaScript / React |
+| Frontend | React (Create React App) |
 | Backend | Node.js + Express |
-| Database | MongoDB / Firebase |
-| Maps | Google Maps API / OpenStreetMap (Leaflet.js) |
-| Image Storage | Cloudinary / Firebase Storage |
+| Database | MongoDB Atlas (M0 Free Tier) |
+| Maps | OpenStreetMap + Leaflet.js |
+| Auth | JWT (JSON Web Tokens) |
+| Frontend Hosting | Vercel |
+| Backend Hosting | Render (Free Tier) |
 
 ---
 
@@ -108,41 +115,61 @@ Seiketsu/
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
 
 - Node.js v18+
-- MongoDB Atlas account (or local MongoDB) / Firebase project
-- Google Maps API key or OpenStreetMap (free)
-- Cloudinary account (free tier available) / Firebase Storage
+- MongoDB Atlas account (free tier)
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/seiketsu.git
-cd seiketsu
+git clone https://github.com/Parusa123/seiketsu1.0v.git
+cd seiketsu1.0v
 
-# Install dependencies
+# Install backend dependencies
+cd backend
 npm install
 
-# Set up environment variables
-cp .env.example .env
-# Fill in your API keys and DB URI in .env
-
-# Start the development server
-npm run dev
+# Install frontend dependencies
+cd ../frontend/frontend
+npm install
 ```
 
 ### Environment Variables
 
+Create a `.env` file inside the `backend/` folder:
+
 ```env
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
-GOOGLE_MAPS_API_KEY=your_google_maps_key
-CLOUDINARY_URL=your_cloudinary_url
+MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_jwt_secret_key
+NODE_ENV=development
 ```
+
+### Running Locally
+
+```bash
+# Run backend (from backend/ folder)
+node server.js
+
+# Run frontend (from frontend/frontend/ folder)
+npm start
+```
+
+---
+
+## 🌐 Deployment
+
+| Service | Platform | URL |
+|---|---|---|
+| Frontend | Vercel | [seiketsuu11.vercel.app](https://seiketsuu11.vercel.app) |
+| Backend | Render | [seiketsu-backend.onrender.com](https://seiketsu-backend.onrender.com) |
+| Database | MongoDB Atlas | M0 Free Cluster (Mumbai) |
+
+> ⚠️ **Note:** The backend is hosted on Render's free tier, which spins down after 15 minutes of inactivity. The first request after inactivity may take up to 50 seconds.
 
 ---
 
@@ -151,10 +178,10 @@ CLOUDINARY_URL=your_cloudinary_url
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Login and get token |
+| POST | `/api/auth/login` | Login and get JWT token |
 | GET | `/api/users` | Get user info |
 | GET | `/api/dustbins` | Get all dustbin locations |
-| POST | `/api/dustbins` | Add a new dustbin (admin) |
+| POST | `/api/dustbins` | Add a new dustbin (admin only) |
 | GET | `/api/dustbin-requests` | Get all overflow/damage reports |
 | POST | `/api/dustbin-requests` | Submit a new report |
 | GET | `/api/admin` | Admin overview |
@@ -167,21 +194,24 @@ CLOUDINARY_URL=your_cloudinary_url
 
 - [x] Core map view with dustbin markers
 - [x] GPS-based location detection
-- [x] Report submission with photo upload
-- [ ] Admin dashboard with report management
+- [x] User authentication (register/login)
+- [x] Admin dashboard with request management
+- [x] Leaderboard for top contributors
+- [x] Notifications system
+- [x] Deployed on Vercel + Render + MongoDB Atlas
 - [ ] Municipal authority email alerts
 - [ ] Upvote system for reports (crowd-verified)
 - [ ] PWA support for offline access
+- [ ] Photo upload with overflow reports
 
 ---
 
 ## 💡 Why Seiketsu is Realistic
 
-- Can be built solo by a single student
+- Built solo by a single student
 - Requires no funding or external volunteers
-- Completable within **1–2 weeks**
-- Suitable for portfolios, hackathons, and internship applications
 - Uses free-tier services throughout the stack
+- Suitable for portfolios, hackathons, and internship applications
 
 ---
 
